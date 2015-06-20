@@ -13,52 +13,7 @@ type twoSetsVennDiagram = {S: SectionStatus; SP: SectionStatus; P: SectionStatus
 type twoTermsProposition = {quantifier1: Quantifier; category1: CategoryRef; appartenence: Appartenence; category2: CategoryRef}
 
 
-
-let overlappable status1 status2 =
-    match (status1,status2) with
-        | (Empty,_) -> true
-        | (_,Empty) -> true
-        | (Starred,Starred) -> true  
-        | (BlackFilled,BlackFilled) -> true
-        | _ -> false
-
-let overlapSingle s1 s2 =
-    match (s1,s2) with
-        | (Empty,Empty) -> Empty
-        | (Empty,s2) -> s2
-        | (s1,Empty) -> s1
-        | _ -> failwith "non overlappable states "
-
-let overlapSingleRefactored s1 s2 =
-    match (s1,s2) with
-        | (Empty,Empty) -> Some Empty
-        | (Empty,s2) -> Some s2
-        | (s1,Empty) -> Some s1
-        | _ -> None
-
-let canMergeExpressionsRefactored first second =   
-    match (first,second) with
-        | ({S=s1;SP=sp1;P=p1},{S=s2;SP=sp2;P=p2}) -> overlappable s1 s2 && overlappable sp1 sp2 && overlappable p1 p2
-
-let canMergeExpressions first second =   
-    match (first,second) with
-        | ({S=s1;SP=sp1;P=p1},{S=s2;SP=sp2;P=p2}) -> overlappable s1 s2 && overlappable sp1 sp2 && overlappable p1 p2
-    
-let merge first second =
-    let precondition = match (canMergeExpressions first second) with | true -> true | false -> failwith "unmergeable"
-    match (first,second) with
-        | ({S=s1;SP=sp1;P=p1},{S=s2;SP=sp2;P=p2}) -> {S=overlapSingle s1 s2; SP = overlapSingle sp1 sp2; P = overlapSingle p1 p2}
-
-
-let mergeRefactored  first second = 
-    let extractFirst = match first with Some X -> X | None -> {S=Empty; SP=Empty; P=Empty}
-    let extractSecond = match second with Some X -> X | None ->  {S=Empty; SP=Empty; P=Empty}
-    if (canMergeExpressions  extractFirst extractSecond ) then Some (merge extractFirst extractSecond) else None
-
-       
-     
 type MaybeBuilder() =
-
     member this.Bind(x, f) = 
         match x with
         | None -> None
@@ -69,21 +24,28 @@ type MaybeBuilder() =
    
 let maybe = new MaybeBuilder()
 
+let merge first second =
+    let overlap s1 s2 =
+        match (s1,s2) with
+            | (Empty,Empty) -> Some Empty
+            | (Empty,s2) -> Some s2
+            | (s1,Empty) -> Some s1
+            | _ -> None
 
-       
-let mergeAll toBeMerged =
-    try 
-        Some (List.fold (fun item acc -> merge item acc) {S=Empty;SP=Empty;P=Empty} toBeMerged)
-    with
-    | :? System.Exception -> None
+    let {S=s1;SP=sp1;P=p1}= first
+    let {S=s2;SP=sp2;P=p2}= second
 
-
-let mergeAllRefactored toBeMerged =
     maybe 
         {
-            let! toRet =  (List.fold (fun item acc -> mergeRefactored item acc) (Some {S=Empty;SP=Empty;P=Empty}) toBeMerged)
-            return toRet
+            let! s = overlap s1 s2
+            let! sp = overlap sp1 sp2
+            let! p = overlap p1 p2
+            return {S=s;SP=sp;P=p}
         }
+
+
+let mergeAll toBeMerged =
+            (List.fold (fun item acc -> match item with | Some X -> merge X acc | None -> None) (Some {S=Empty;SP=Empty;P=Empty}) toBeMerged)
 
 
 let basicCategoricalDecomposition diagram =
