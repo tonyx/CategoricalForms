@@ -48,6 +48,17 @@ let mergeAll toBeMerged =
             (List.fold (fun item acc -> match item with | Some X -> merge X acc | None -> None) (Some {S=Empty;SP=Empty;P=Empty}) toBeMerged)
 
 
+let singlePropositionToVenn proposition =  
+    match proposition with
+        | {quantifier1=All;category1=S;appartenence=Is;category2=P} -> {S=BlackFilled;SP=Empty;P=Empty} 
+        | {quantifier1=No;category1=S;appartenence=Is;category2=P} -> {S=Empty;SP=BlackFilled;P=Empty} 
+        | {quantifier1=No;category1=P;appartenence=Is;category2=S} -> {S=Empty;SP=BlackFilled;P=Empty} 
+        | {quantifier1=Somes;category1=S;appartenence=Is;category2=P} -> {S=Empty;SP=Starred;P=Empty} 
+        | {quantifier1=Somes;category1=P;appartenence=Is;category2=S} -> {S=Empty;SP=Starred;P=Empty} 
+        | {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P} -> {S=Starred;SP=Empty;P=Empty} 
+
+
+
 let basicCategoricalDecomposition diagram =
         match diagram with
             | {S=s_pattern; SP=Empty;P=Empty}  when s_pattern <> Empty -> [{S=s_pattern; SP=Empty;P=Empty}] // A or O
@@ -60,7 +71,7 @@ let basicCategoricalDecomposition diagram =
             | _ -> []
 
 
-let rec VennToPropositions diagram =
+let rec vennToPropositions diagram =
     match diagram with 
         | {S=Empty; SP=Empty;P=Empty} -> []
         | {S=BlackFilled; SP=Empty;P=Empty} ->  [{quantifier1=All;category1=S;appartenence=Is;category2=P}]
@@ -69,7 +80,7 @@ let rec VennToPropositions diagram =
         | {S=Empty; SP=Starred;P=Empty} -> [{quantifier1=Somes;category1=S;appartenence=Is;category2=P};{quantifier1=Somes;category1=P;appartenence=Is;category2=S}]
         | {S=Starred; SP=Empty;P=Empty} -> [{quantifier1=Somes;category1=S;appartenence=IsNot;category2=P}]
         | {S=Empty; SP=Empty;P=Starred} -> [{quantifier1=Somes;category1=P;appartenence=IsNot;category2=S}]
-        | _ -> List.fold (fun acc item -> acc @ (VennToPropositions item) ) [] (basicCategoricalDecomposition diagram)
+        | _ -> List.fold (fun acc item -> acc @ (vennToPropositions item) ) [] (basicCategoricalDecomposition diagram)
 
 
 

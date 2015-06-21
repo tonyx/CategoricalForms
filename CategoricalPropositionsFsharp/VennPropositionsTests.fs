@@ -11,49 +11,49 @@ open System
     let ``A type of Venn diagram maps to Proposition "All S is P"``()=
         let allSIsP = {S=BlackFilled; SP=Empty;P=Empty}
         let expectedProposition = [{quantifier1=All;category1=S;appartenence=Is;category2=P}]
-        let actual = VennToPropositions allSIsP
+        let actual = vennToPropositions allSIsP
         Assert.AreEqual(expectedProposition,actual)
 
 [<Test>]
     let ``A type of Venn diagram maps to Proposition "All P is S"``()=
         let allSIsP = {P=BlackFilled; SP=Empty;S=Empty}
         let expectedProposition = [{quantifier1=All;category1=P;appartenence=Is;category2=S}]
-        let actual = VennToPropositions allSIsP
+        let actual = vennToPropositions allSIsP
         Assert.AreEqual(expectedProposition,actual)
 
 [<Test>]
     let ``A type Venn diagram reversed Order rempams to the correct order "All P Is S"``()=
         let allPIsS = {S=Empty; SP=Empty;P=BlackFilled}
         let expectedProposition = [{quantifier1=All;category1=P;appartenence=Is;category2=S}]
-        let actual = VennToPropositions allPIsS
+        let actual = vennToPropositions allPIsS
         Assert.AreEqual(expectedProposition,actual)
                     
 [<Test>]
     let ``Proposition E graph has two expression formula``()=
         let noSIsP = {S=Empty; SP=BlackFilled;P=Empty}
         let expectedProposition = [{quantifier1=No;category1=S;appartenence=Is;category2=P};{quantifier1=No;category1=P;appartenence=Is;category2=S}]
-        let actual = VennToPropositions noSIsP
+        let actual = vennToPropositions noSIsP
         Assert.AreEqual(expectedProposition,actual)
 
 [<Test>]
     let ``Proposition I graph has two expressions formulas``()=
         let someSIsP = {S=Empty; SP=Starred;P=Empty}
         let expectedProposition =  [{quantifier1=Somes;category1=S;appartenence=Is;category2=P};{quantifier1=Somes;category1=P;appartenence=Is;category2=S}]
-        let actual = VennToPropositions someSIsP
+        let actual = vennToPropositions someSIsP
         Assert.AreEqual(expectedProposition,actual)
 
 [<Test>]
     let ``Proposition O graph has one expression formula``()=
         let someSIsNoP = {S=Starred; SP=Empty;P=Empty}
         let expectedProposition =  [{quantifier1=Somes;category1=S;appartenence=IsNot;category2=P}]
-        let actual = VennToPropositions someSIsNoP
+        let actual = vennToPropositions someSIsNoP
         Assert.AreEqual(expectedProposition,actual)
 
 [<Test>]
     let ``Proposition O graph has one expression formula reversed``()=
         let somePIsNoS = {S=Empty; SP=Empty;P=Starred}
         let expectedProposition =  [{quantifier1=Somes;category1=P;appartenence=IsNot;category2=S}]
-        let actual = VennToPropositions somePIsNoS
+        let actual = vennToPropositions somePIsNoS
         Assert.AreEqual(expectedProposition,actual)
 
 // Venn diagrams to propositions
@@ -62,84 +62,100 @@ open System
     let ``complex graph to propositions``()=
         let someSIsNotP_SomePIsNotS = {S=Starred; SP=Empty;P=Starred}
         let expectedProposition =  [{quantifier1=Somes;category1=S;appartenence=IsNot;category2=P};{quantifier1=Somes;category1=P;appartenence=IsNot;category2=S}]
-        let actual = VennToPropositions someSIsNotP_SomePIsNotS
+        let actual = vennToPropositions someSIsNotP_SomePIsNotS
         Assert.AreEqual(expectedProposition,actual)
 
 [<Test>]
     let ``complex graph to propositions 1``()=
         let vennComplexDiagram = {S=Starred; SP=BlackFilled;P=Starred}
-        let NoSIsP = {quantifier1=No;category1=S;appartenence=Is;category2=P}
-        let SomeSIsNoP = {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P}
-        let SomePIsNoS = {quantifier1=Somes;category1=P;appartenence=IsNot;category2=S}
-        let NoPIisS = {quantifier1=No;category1=P;appartenence=Is;category2=S}
+        let noSIsP = {quantifier1=No;category1=S;appartenence=Is;category2=P}
+        let someSIsNoP = {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P}
+        let somePIsNoS = {quantifier1=Somes;category1=P;appartenence=IsNot;category2=S}
+        let noPIsS = {quantifier1=No;category1=P;appartenence=Is;category2=S}
 
-        let expectedProposition = List.sort [NoSIsP;SomeSIsNoP;SomePIsNoS;NoPIisS]
+        let expectedProposition = List.sort [noSIsP;someSIsNoP;somePIsNoS;noPIsS]
 
-        let actual = List.sort (VennToPropositions vennComplexDiagram)
+        let actual = List.sort (vennToPropositions vennComplexDiagram)
         Assert.AreEqual(expectedProposition,actual)
 
 [<Test>]
     let ``complex graph to propositions 2``()=
         let vennComplexDiagram = {S=Starred; SP=Empty;P=Starred}
-        let SomeSIsNoP = {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P}
-        let SomePIsNoS = {quantifier1=Somes;category1=P;appartenence=IsNot;category2=S}
+        let someSIsNoP = {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P}
+        let somePIsNoS = {quantifier1=Somes;category1=P;appartenence=IsNot;category2=S}
 
-        let expectedProposition = List.sort [SomeSIsNoP;SomePIsNoS]
+        let expectedProposition = List.sort [someSIsNoP;somePIsNoS]
 
-        let actual = List.sort (VennToPropositions vennComplexDiagram)
+        let actual = List.sort (vennToPropositions vennComplexDiagram)
         Assert.AreEqual(expectedProposition,actual)
 
 [<Test>]
     let ``complex graph to propositions 4``()=
         let vennComplexDiagram = {S=Starred; SP=Starred;P=Starred}
-        let SomeSIsNoP = {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P}
-        let SomeSIsP =   {quantifier1=Somes;category1=S;appartenence=Is;category2=P}
-        let SomePIsS =   {quantifier1=Somes;category1=P;appartenence=Is;category2=S}
-        let SomePIsNoS = {quantifier1=Somes;category1=P;appartenence=IsNot;category2=S}
+        let someSIsNoP = {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P}
+        let someSIsP =   {quantifier1=Somes;category1=S;appartenence=Is;category2=P}
+        let somePIsS =   {quantifier1=Somes;category1=P;appartenence=Is;category2=S}
+        let somePIsNoS = {quantifier1=Somes;category1=P;appartenence=IsNot;category2=S}
 
-        let expectedProposition = List.sort [SomeSIsNoP;SomeSIsP;SomePIsS;SomePIsNoS]
+        let expectedProposition = List.sort [someSIsNoP;someSIsP;somePIsS;somePIsNoS]
 
-        let actual = List.sort (VennToPropositions vennComplexDiagram)
+        let actual = List.sort (vennToPropositions vennComplexDiagram)
         Assert.AreEqual(expectedProposition,actual)
 
 [<Test>]
     let ``complex graph to propositions 6``()=
         let vennComplexDiagram = {S=BlackFilled; SP=Empty;P=Starred}
-        let AllSIsP = {quantifier1=All;category1=S;appartenence=Is;category2=P}
+        let allSIsP = {quantifier1=All;category1=S;appartenence=Is;category2=P}
         let SomePIsNotS = {quantifier1=Somes;category1=P;appartenence=IsNot;category2=S}
-        let expectedProposition = List.sort [AllSIsP;SomePIsNotS]
+        let expectedProposition = List.sort [allSIsP;SomePIsNotS]
 
-        let actual = List.sort (VennToPropositions vennComplexDiagram)
+        let actual = List.sort (vennToPropositions vennComplexDiagram)
         Assert.AreEqual(expectedProposition,actual)
 
 [<Test>]
     let ``complex graph to propositions 7``()=
         let vennComplexDiagram = {S=BlackFilled; SP=Empty;P=BlackFilled}
-        let AllSIsP = {quantifier1=All;category1=S;appartenence=Is;category2=P}
-        let AllPIsS = {quantifier1=All;category1=P;appartenence=Is;category2=S}
-        let expectedProposition = List.sort [AllSIsP;AllPIsS]
+        let allSIsP = {quantifier1=All;category1=S;appartenence=Is;category2=P}
+        let allPIsS = {quantifier1=All;category1=P;appartenence=Is;category2=S}
+        let expectedProposition = List.sort [allSIsP;allPIsS]
 
-        let actual = List.sort (VennToPropositions vennComplexDiagram)
+        let actual = List.sort (vennToPropositions vennComplexDiagram)
         Assert.AreEqual(expectedProposition,actual)
+
+[<Test>]
+    let ``complex graph to propositions 8``()=
+        let vennComplexDiagram = {S=Starred; SP=BlackFilled;P=Starred}
+
+        let someSIsNotP = {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P}
+        let noPIsS = {quantifier1=No;category1=P;appartenence=Is;category2=S}
+        let noSIsP = {quantifier1=No;category1=S;appartenence=Is;category2=P}
+        let somePIsNotS = {quantifier1=Somes;category1=P;appartenence=IsNot;category2=S}
+
+        let expectedProposition = List.sort [someSIsNotP;noSIsP;noPIsS;somePIsNotS]
+
+        let actual = List.sort (vennToPropositions vennComplexDiagram)
+        Assert.AreEqual(expectedProposition,actual)
+
+
 
 [<Test>]
     let ``Venn diagram all filled``()=
         let vennComplexDiagram = {S=BlackFilled; SP=BlackFilled;P=BlackFilled}
-        let AllSIsP = {quantifier1=All;category1=S;appartenence=Is;category2=P}
-        let NoSIsP = {quantifier1=No;category1=S;appartenence=Is;category2=P}
-        let AllPIsS = {quantifier1=All;category1=P;appartenence=Is;category2=S}
-        let NoPIsS = {quantifier1=No;category1=P;appartenence=Is;category2=S}
+        let allSIsP = {quantifier1=All;category1=S;appartenence=Is;category2=P}
+        let noSIsP = {quantifier1=No;category1=S;appartenence=Is;category2=P}
+        let allPIsS = {quantifier1=All;category1=P;appartenence=Is;category2=S}
+        let noPIsS = {quantifier1=No;category1=P;appartenence=Is;category2=S}
 
-        let expectedProposition =  List.sort [AllSIsP;NoSIsP;AllPIsS;NoPIsS]
+        let expectedProposition =  List.sort [allSIsP;noSIsP;allPIsS;noPIsS]
 
-        let actual = List.sort (VennToPropositions vennComplexDiagram)
+        let actual = List.sort (vennToPropositions vennComplexDiagram)
 
         Assert.AreEqual(expectedProposition,actual)
 
 [<Test>]
     let ``Venn diagram all empty``()=
         let vennComplexDiagram = {S=Empty; SP=Empty;P=Empty}    
-        let actual = VennToPropositions vennComplexDiagram
+        let actual = vennToPropositions vennComplexDiagram
         Assert.IsTrue((actual = []))
 
 
@@ -153,29 +169,29 @@ open System
 
 [<Test>] 
     let ``decomposed diagram of E basic diagram``()=
-         let NoSIsP = {S=Empty; SP=BlackFilled;P=Empty}
-         let actual = basicCategoricalDecomposition NoSIsP
+         let noSIsP = {S=Empty; SP=BlackFilled;P=Empty}
+         let actual = basicCategoricalDecomposition noSIsP
          let expected = [{S=Empty;SP=BlackFilled;P=Empty}]
          Assert.AreEqual(expected,actual)
 
 [<Test>]
     let ``decomposed diagram of I basic diagram``()=
-         let SomeSIsP = {S=Empty; SP=Starred;P=Empty}
-         let actual = basicCategoricalDecomposition SomeSIsP
+         let someSIsP = {S=Empty; SP=Starred;P=Empty}
+         let actual = basicCategoricalDecomposition someSIsP
          let expected = [{S=Empty;SP=Starred;P=Empty}]
          Assert.AreEqual(expected,actual)
 
 [<Test>]
     let ``decomposed diagram of O basic diagram``()=
-         let SomeSIsNoP = {S=Starred; SP=Empty;P=Empty}
-         let actual = basicCategoricalDecomposition SomeSIsNoP
+         let someSIsNoP = {S=Starred; SP=Empty;P=Empty}
+         let actual = basicCategoricalDecomposition someSIsNoP
          let expected = [{S=Starred; SP=Empty;P=Empty}]
          Assert.AreEqual(expected,actual)
 
 [<Test>]
     let ``complex decomposition``()=
-         let SomeSIsNoP = {S=Starred; SP=BlackFilled;P=Starred}
-         let actual = basicCategoricalDecomposition SomeSIsNoP
+         let someSIsNoP = {S=Starred; SP=BlackFilled;P=Starred}
+         let actual = basicCategoricalDecomposition someSIsNoP
          let expected = [{S=Starred;SP=Empty;P=Empty};{S=Empty;SP=BlackFilled;P=Empty};{S=Empty;SP=Empty;P=Starred}]
          Assert.AreEqual(expected,actual)
 
@@ -207,30 +223,7 @@ open System
         let actual = basicCategoricalDecomposition composedExample
         Assert.AreEqual(expected,actual)
 
-//[<Test>]
-//    let ``consistents expressions``()=
-//        let someMIsNotP = {S=Starred; SP=Empty; P = Empty}
-//        let somePIsNotS = {S=Empty; SP=Empty; P = Starred}
-//        let canMergeExpressions = canMergeExpressions someMIsNotP somePIsNotS
-//
-//        Assert.IsTrue(canMergeExpressions)
 
-//[<Test>]
-//    let ``consistents expressions Refactored``()=
-//        let someMIsNotP = Some {S=Starred; SP=Empty; P = Empty}
-//        let somePIsNotS = Some {S=Empty; SP=Empty; P = Starred}
-//        let canMergeExpressions = mergeRefactored someMIsNotP somePIsNotS
-//
-//        Assert.AreEqual(None,canMergeExpressions)
-
-
-
-//[<Test>]
-//    let ``A incompatible with O``()=
-//        let allSIsP = Some {S=BlackFilled; SP=Empty; P = Empty}
-//        let someSIsNotP = Some {S=Starred; SP=Empty; P = Empty}
-//        let canMergeExpressions = mergeRefactored allSIsP  someSIsNotP
-//        Assert.AreEqual(None,canMergeExpressions)
 
 [<Test>]
     let ``A incompatible with O``()=
@@ -239,158 +232,83 @@ open System
         let canMergeExpressions = merge allSIsP  someSIsNotP
         Assert.AreEqual(None,canMergeExpressions)
 
-//[<Test>]
-//    let ``E incompatible with I``()=
-//        let allEIsI = {S=Empty; SP=BlackFilled; P = Empty}
-//        let someSIsP = {S=Empty; SP=Starred; P = Empty}
-//        let canMergeExpressions = canMergeExpressions allEIsI someSIsP
-//        Assert.IsFalse(canMergeExpressions)
-
-//[<Test>]
-//    let ``E incompatible with I Refactored``()=
-//        let allEIsI = {S=Empty; SP=BlackFilled; P = Empty}
-//        let someSIsP = {S=Empty; SP=Starred; P = Empty}
-//        let canMergeExpressions = canMergeExpressions allEIsI someSIsP
-//        Assert.IsFalse(canMergeExpressions)
-
-//[<Test>]
-//[<ExpectedException>]
-//    let ``incompatibles with list``()=
-//        let allEIsI = {S=Empty; SP=BlackFilled; P = Empty}
-//        let someSIsP = {S=Empty; SP=Starred; P = Empty}
-//        let actual = mergeAll [allEIsI;someSIsP]
-//        Assert.IsTrue(false)
 
 
 [<Test>]
-    let ``incompatibles with list unmergable refactored``()=
+    let ``incompatibles with list unmergable``()=
         let allEIsI = {S=Empty; SP=BlackFilled; P = Empty}
         let someSIsP = {S=Empty; SP=Starred; P = Empty}
-//        let actual = mergeAllRefactored [Some allEIsI;Some someSIsP]
         let actual = mergeAll [ allEIsI; someSIsP]
-        //Assert.IsTrue(true)
         Assert.AreEqual(None,actual)
 
-//[<Test>]
-//    let ``incompatibles with list unmergable``()=
-//        let allEIsI = {S=Empty; SP=BlackFilled; P = Empty}
-//        let someSIsP = {S=Empty; SP=Starred; P = Empty}
-//        let actual = mergeAll [allEIsI;someSIsP]
-//       // Assert.IsTrue(true)
-//        Assert.AreEqual(None,actual)
 
-//[<Test>]
-//    let ``A compatible with I``()=
-//        let AllSIsP = {S=BlackFilled; SP=Empty; P = Empty}
-//        let someSIsP = {S=Empty; SP=Starred; P = Empty}
-//        let canMergeExpressions = canMergeExpressions AllSIsP someSIsP
-//        Assert.IsTrue(canMergeExpressions)
-
-
-//[<Test>]
-//    let ``A compatible with I xxx``()=
-//        let AllSIsP = {S=BlackFilled; SP=Empty; P = Empty}
-//        let someSIsP = {S=Empty; SP=Starred; P = Empty}
-//        let actual = mergeAll [AllSIsP;someSIsP]
-//        let expected = Some {S=BlackFilled;SP=Starred;P=Empty}
-//        Assert.AreEqual(actual,expected)
 
 [<Test>]
-    let ``A compatible with I refactoring``()=
-        let AllSIsP = {S=BlackFilled; SP=Empty; P = Empty}
+    let ``A compatible with I ``()=
+        let allSIsP = {S=BlackFilled; SP=Empty; P = Empty}
         let someSIsP = {S=Empty; SP=Starred; P = Empty}
-//        let actual = mergeAllRefactored [Some AllSIsP;Some someSIsP]
-        let actual = mergeAll [ AllSIsP; someSIsP]
+        let actual = mergeAll [ allSIsP; someSIsP]
         let expected = Some {S=BlackFilled;SP=Starred;P=Empty}
         Assert.AreEqual(expected,actual)
       
-//[<Test>]
-//    let ``E compatible with O``()=
-//        let noSIsP = {S=Empty; SP=BlackFilled; P = Empty}
-//        let someSIsNotP = {S=Starred; SP=Empty; P = Empty}
-//        let canMergeExpressions = canMergeExpressions noSIsP someSIsNotP
-//        Assert.IsTrue(canMergeExpressions)
-
-
-// test merge:
  
-//[<Test>]
-//    let ``quantifier merge ``()=
-//        let someSIsNotP = {S=Starred; SP=Empty; P = Empty}
-//        let somePIsNotS = {S=Empty; SP=Empty; P = Starred}
-//        let expectedMerge = Some {S=Starred;SP=Empty;P=Starred}
-//        let actualMerge = mergeAll [someSIsNotP;somePIsNotS]
-//
-//        Assert.AreEqual(expectedMerge,actualMerge)
 
 [<Test>]
-    let ``quantifier merge Refactoring``()=
+    let ``quantifier merge ``()=
         let someSIsNotP = {S=Starred; SP=Empty; P = Empty}
         let somePIsNotS = {S=Empty; SP=Empty; P = Starred}
         let expectedMerge = Some {S=Starred;SP=Empty;P=Starred}
-//        let actualMerge = mergeAllRefactored [Some someSIsNotP;Some somePIsNotS]
         let actualMerge = mergeAll [someSIsNotP;somePIsNotS]
 
         Assert.AreEqual(expectedMerge,actualMerge)
 
-//[<Test>]
-//    let ``quantifier merge with list``()=
-//        let someSIsNotP = {S=Starred; SP=Empty; P = Empty}
-//        let somePIsNotS = {S=Empty; SP=Empty; P = Starred}
-//        let expectedMerge = Some {S=Starred;SP=Empty;P=Starred}
-//        let actualMerge = mergeAll [someSIsNotP ;somePIsNotS]
-//
-//        Assert.AreEqual(expectedMerge,actualMerge)
 
 [<Test>]
-    let ``quantifier merge with list Refactored``()=
+    let ``quantifier merge with list ``()=
         let someSIsNotP = {S=Starred; SP=Empty; P = Empty}
         let somePIsNotS = {S=Empty; SP=Empty; P = Starred}
         let expectedMerge = Some {S=Starred;SP=Empty;P=Starred}
-//        let actualMerge = mergeAllRefactored [Some someSIsNotP ;Some somePIsNotS]
         let actualMerge = mergeAll [ someSIsNotP ; somePIsNotS]
 
         Assert.AreEqual(actualMerge,expectedMerge)
 
-//[<Test>]
-//    let ``quantifier merge 1``()=
-//        let someSIsNotP = {S=Starred; SP=Empty; P = Empty}
-//        let allPIsS = {S=Empty; SP=Empty; P = BlackFilled}
-//        let expectedMerge = Some {S=Starred;SP=Empty;P=BlackFilled}
-//        let actualMerge = mergeAll [someSIsNotP;allPIsS]
-//
-//        Assert.AreEqual(expectedMerge,actualMerge)
 
 [<Test>]
-    let ``quantifier merge 1 Refactored``()=
+    let ``quantifier merge 1 ``()=
         let someSIsNotP = {S=Starred; SP=Empty; P = Empty}
         let allPIsS = {S=Empty; SP=Empty; P = BlackFilled}
         let expectedMerge = Some {S=Starred;SP=Empty;P=BlackFilled}
-//        let actualMerge = mergeAllRefactored [Some someSIsNotP;Some allPIsS]
         let actualMerge = mergeAll [ someSIsNotP; allPIsS]
 
         Assert.AreEqual(expectedMerge,actualMerge)
 
-//[<Test>]
-//    let ``quantifier merge 2``()=
-//        let someSIsNotP = {S=Starred; SP=Empty; P = Empty}
-//        let allPIsS = {S=Empty; SP=Empty; P = BlackFilled}
-//        let expectedMerge = Some {S=Starred;SP=Empty;P=BlackFilled}
-//        let actualMerge = mergeAll [someSIsNotP;allPIsS]
-//
-//        Assert.AreEqual(expectedMerge,actualMerge)
 
 
 [<Test>]
-    let ``quantifier merge 2 Refactored``()=
+    let ``quantifier merge 2 ``()=
         let someSIsNotP = {S=Starred; SP=Empty; P = Empty}
         let allPIsS = {S=Empty; SP=Empty; P = BlackFilled}
         let expectedMerge = Some {S=Starred;SP=Empty;P=BlackFilled}
-//        let actualMerge = mergeAllRefactored [Some someSIsNotP;Some allPIsS]
         let actualMerge = mergeAll [ someSIsNotP; allPIsS]
 
         Assert.AreEqual(expectedMerge,actualMerge)
 
+
+[<Test>]
+    let ``simple proposition to Venn``()=
+        let someSIsPProposition = {quantifier1=All;category1=S;appartenence=Is;category2=P}
+        let someSIsPDiagram = {S=BlackFilled;SP=Empty;P=Empty}
+
+        let actual = singlePropositionToVenn someSIsPProposition 
+        Assert.AreEqual(someSIsPDiagram,actual)
+
+[<Test>]
+    let ``simple proposition to Venn 2``()=
+        let noSIsPProposition = {quantifier1=No;category1=S;appartenence=Is;category2=P}
+        let noSIsPDiagram = {S=Empty;SP=BlackFilled;P=Empty}
+
+        let actual = singlePropositionToVenn noSIsPProposition 
+        Assert.AreEqual(noSIsPDiagram,actual)
 
 
 
