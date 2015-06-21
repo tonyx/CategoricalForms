@@ -2,7 +2,7 @@
 
 open NUnit.Framework
 
-type CategoryRef = S | M | P | Z
+type CategoryRef = S |  P 
         
 type Appartenence = Is | IsNot
 type Quantifier = All | Somes | No
@@ -27,9 +27,9 @@ let maybe = new MaybeBuilder()
 let merge first second =
     let overlap s1 s2 =
         match (s1,s2) with
-            | (Empty,Empty) -> Some Empty
             | (Empty,s2) -> Some s2
             | (s1,Empty) -> Some s1
+            | (s1,s2) when s1 = s2 -> Some s2
             | _ -> None
 
     let {S=s1;SP=sp1;P=p1}= first
@@ -48,14 +48,27 @@ let mergeAll toBeMerged =
             (List.fold (fun item acc -> match item with | Some X -> merge X acc | None -> None) (Some {S=Empty;SP=Empty;P=Empty}) toBeMerged)
 
 
-let singlePropositionToVenn proposition =  
+
+let rec singlePropositionToVenn proposition =  
     match proposition with
-        | {quantifier1=All;category1=S;appartenence=Is;category2=P} -> {S=BlackFilled;SP=Empty;P=Empty} 
-        | {quantifier1=No;category1=S;appartenence=Is;category2=P} -> {S=Empty;SP=BlackFilled;P=Empty} 
-        | {quantifier1=No;category1=P;appartenence=Is;category2=S} -> {S=Empty;SP=BlackFilled;P=Empty} 
-        | {quantifier1=Somes;category1=S;appartenence=Is;category2=P} -> {S=Empty;SP=Starred;P=Empty} 
-        | {quantifier1=Somes;category1=P;appartenence=Is;category2=S} -> {S=Empty;SP=Starred;P=Empty} 
-        | {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P} -> {S=Starred;SP=Empty;P=Empty} 
+        | {quantifier1=All;category1=S;appartenence=Is;category2=P} -> Some {S=BlackFilled;SP=Empty;P=Empty} 
+        | {quantifier1=No;category1=S;appartenence=Is;category2=P}  -> Some {S=Empty;SP=BlackFilled;P=Empty} 
+        | {quantifier1=No;category1=P;appartenence=Is;category2=S}  -> Some {S=Empty;SP=BlackFilled;P=Empty} 
+        | {quantifier1=Somes;category1=S;appartenence=Is;category2=P} -> Some {S=Empty;SP=Starred;P=Empty} 
+        | {quantifier1=Somes;category1=P;appartenence=Is;category2=S} -> Some {S=Empty;SP=Starred;P=Empty} 
+        | {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P} -> Some {S=Starred;SP=Empty;P=Empty} 
+
+        | {quantifier1=All;category1=P;appartenence=Is;category2=S} -> Some {S=Empty;SP=Empty;P=BlackFilled} 
+        | {quantifier1=Somes;category1=P;appartenence=IsNot;category2=S} -> Some {S=Empty;SP=Empty;P=Starred} 
+
+        | {quantifier1=All;category1=x;appartenence=Is;category2=y} when x =y -> Some {S=Empty;SP=Empty;P=Empty}
+        | {quantifier1=Somes;category1=x;appartenence=Is;category2=y} when x =y -> Some {S=Empty;SP=Empty;P=Empty}
+
+        | {quantifier1=No;category1=x;appartenence=IsNot;category2=y} when x =y -> Some {S=Empty;SP=Empty;P=Empty}
+        | {quantifier1=No;category1=S;appartenence=IsNot;category2=P} -> singlePropositionToVenn {quantifier1=All;category1=S;appartenence=Is;category2=P}
+        | {quantifier1=No;category1=P;appartenence=IsNot;category2=S} -> singlePropositionToVenn {quantifier1=All;category1=P;appartenence=Is;category2=S}
+
+        | _ -> None
 
 
 
@@ -83,5 +96,9 @@ let rec vennToPropositions diagram =
         | _ -> List.fold (fun acc item -> acc @ (vennToPropositions item) ) [] (basicCategoricalDecomposition diagram)
 
 
+//let propositionsToVenn propositions =
+//    match propositions with
+//        List.fold (fun item acc -> match item with | Some X ->  )
+//
 
 

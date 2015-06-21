@@ -295,21 +295,42 @@ open System
 
 
 [<Test>]
-    let ``simple proposition to Venn``()=
-        let someSIsPProposition = {quantifier1=All;category1=S;appartenence=Is;category2=P}
-        let someSIsPDiagram = {S=BlackFilled;SP=Empty;P=Empty}
+    let ``complex merge test ``()=
+        let someSIsP = {S=Empty; SP=Starred; P = Empty}
+        let someSIsNotP = {S=Starred; SP=Empty; P = Empty}
+        let expectedMerge = Some {S=Starred;SP=Starred;P=Empty}
+        let actualMerge = mergeAll [ someSIsNotP; someSIsP]
 
-        let actual = singlePropositionToVenn someSIsPProposition 
-        Assert.AreEqual(someSIsPDiagram,actual)
+        Assert.AreEqual(expectedMerge,actualMerge)
+                 
+[<Test>]
+    let ``complex merge test 2 ``()=
+        let someSIsP = {S=Empty; SP=Starred; P = Empty}
+        let someSIsNotP = {S=Starred; SP=Empty; P = Empty}
+        let somePIsNotS = {S=Empty; SP=Empty; P = Starred}
+        let expectedMerge = Some {S=Starred;SP=Starred;P=Starred}
+        let actualMerge = mergeAll [ someSIsNotP; someSIsP;somePIsNotS]
+
+        Assert.AreEqual(expectedMerge,actualMerge)
+                 
+        // Some S is not P, No S is P, No P is S, and Some P is not S.
+[<Test>]
+    let ``complex merge test 3 ``()=
+        let someSIsNotP = {S=Starred; SP=Empty; P = Empty}
+        let noSIsP = {S=Empty; SP=BlackFilled; P = Empty}
+        let noPIsS = {S=Empty; SP=BlackFilled; P = Empty}
+        let somePIssNotS = {S=Empty; SP=Empty; P = Starred}
+
+        let expectedMerge = Some {S=Starred;SP=BlackFilled;P=Starred}
+        let actualMerge = mergeAll [ someSIsNotP; noSIsP;somePIssNotS]
+
+        Assert.AreEqual(expectedMerge,actualMerge)
 
 [<Test>]
-    let ``simple proposition to Venn 2``()=
-        let noSIsPProposition = {quantifier1=No;category1=S;appartenence=Is;category2=P}
-        let noSIsPDiagram = {S=Empty;SP=BlackFilled;P=Empty}
+    let ``merge two equals elements gets the same element back``()=
+        let noSIsP = {S=Empty; SP=BlackFilled; P = Empty}
+        let noPIsS = {S=Empty; SP=BlackFilled; P = Empty}
+        let expected = Some noSIsP
+        let actualMerge = mergeAll [noSIsP;noPIsS]
+        Assert.AreEqual(expected ,actualMerge)
 
-        let actual = singlePropositionToVenn noSIsPProposition 
-        Assert.AreEqual(noSIsPDiagram,actual)
-
-
-
-                 
