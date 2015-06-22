@@ -129,42 +129,66 @@ open catSyllogism.Expressions
         Assert.AreEqual(noPIsNotSDiagram,actual)  
 
 
+
+
+
 // Some S is not P, No S is P, No P is S, and Some P is not S
  [<Test>]
-   let ``multiple and merged propositions``()=
-        let someSIsNotPdiagram = match singlePropositionToVenn {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P} with | Some X -> X
-        let noSIsPDiagram = match singlePropositionToVenn {quantifier1=No;category1=S;appartenence=Is;category2=P} with | Some X -> X
-        let noPIsSDiagram = match singlePropositionToVenn {quantifier1=No;category1=P;appartenence=Is;category2=S} with | Some X -> X
-        let somePIsNotS = match singlePropositionToVenn {quantifier1=Somes;category1=P;appartenence=IsNot;category2=S} with | Some X -> X
+   let `` Some S is not P, No S is P, No P is S, and Some P is not S ``()=
+       let props = [
+         {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P};
+         {quantifier1=No;category1=S;appartenence=Is;category2=P};
+         {quantifier1=No;category1=P;appartenence=Is;category2=S}; 
+         {quantifier1=Somes;category1=P;appartenence=IsNot;category2=S};
 
-        let finalDiagram = mergeAll [someSIsNotPdiagram;noSIsPDiagram;noPIsSDiagram;somePIsNotS]
+         ]
 
-        let expected = Some {S=Starred;SP=BlackFilled;P=Starred}
+       let diagram = mergeAllPropositionsToDiagram props
+       let expected = Some {S=Starred;SP=BlackFilled;P=Starred} 
 
-        Assert.AreEqual(expected,finalDiagram)  
+       Assert.AreEqual(expected,diagram)
+
+
+ [<Test>]
+   let ``contraddictory proposition get no diagram``()=
+       let props = [
+         {quantifier1=No;category1=S;appartenence=Is;category2=P};
+         {quantifier1=Somes;category1=S;appartenence=Is;category2=P};
+
+         ]
+
+       let diagram = mergeAllPropositionsToDiagram props
+       let expected = None
+
+       Assert.AreEqual(expected,diagram)
+
+ [<Test>]
+   let ``empty proposition get empty diagram``()=
+       let props = [
+
+         ]
+
+       let diagram = mergeAllPropositionsToDiagram props
+       let expected = Some {S=Empty;SP=Empty;P=Empty}
+
+       Assert.AreEqual(expected,diagram)
 
 
 
-// [<Test>]
-//   let ``multiple and merged propositions complete``()=
-//
-//        let someSIsNotPdiagram = match singlePropositionToVenn {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P} with | Some X -> X
-//        let noSIsPDiagram = match singlePropositionToVenn {quantifier1=No;category1=S;appartenence=Is;category2=P} with | Some X -> X
-//        let noPIsSDiagram = match singlePropositionToVenn {quantifier1=No;category1=P;appartenence=Is;category2=S} with | Some X -> X
-//        let somePIsNotS = match singlePropositionToVenn {quantifier1=Somes;category1=P;appartenence=IsNot;category2=S} with | Some X -> X
-//
-//        let finalDiagram = mergeAll [someSIsNotPdiagram;noSIsPDiagram;noPIsSDiagram;somePIsNotS]
-//
-//        let finalDiagram =propositionsToVenn [
-//            {quantifier1=Somes;category1=S;appartenence=IsNot;category2=P} ;
-//            {quantifier1=No;category1=S;appartenence=Is;category2=P}; 
-//            {quantifier1=No;category1=P;appartenence=Is;category2=S};
-//            {quantifier1=Somes;category1=P;appartenence=IsNot;category2=S} 
-//        
-//        ]
-//
-//
-//        let expected = Some {S=Starred;SP=BlackFilled;P=Starred}
-//
-//        Assert.AreEqual(expected,finalDiagram)  
-//
+ [<Test>]
+   let ``All S is P - No S is P - No P is S  - All P is S``()=
+       let props = [ 
+           { quantifier1=All;category1=S;appartenence=Is;category2=P};
+             {quantifier1=No;category1=S;appartenence=Is;category2=P};
+             {quantifier1=No;category1=P;appartenence=Is;category2=S};
+             {quantifier1=All;category1=P;appartenence=Is;category2=S};
+
+         ]
+
+       let diagram = mergeAllPropositionsToDiagram props
+       let expected = Some {S=BlackFilled;SP=BlackFilled;P=BlackFilled}
+
+       Assert.AreEqual(expected,diagram)
+    
+
+

@@ -48,7 +48,6 @@ let mergeAll toBeMerged =
             (List.fold (fun item acc -> match item with | Some X -> merge X acc | None -> None) (Some {S=Empty;SP=Empty;P=Empty}) toBeMerged)
 
 
-
 let rec singlePropositionToVenn proposition =  
     match proposition with
         | {quantifier1=All;category1=S;appartenence=Is;category2=P} -> Some {S=BlackFilled;SP=Empty;P=Empty} 
@@ -96,9 +95,14 @@ let rec vennToPropositions diagram =
         | _ -> List.fold (fun acc item -> acc @ (vennToPropositions item) ) [] (basicCategoricalDecomposition diagram)
 
 
-//let propositionsToVenn propositions =
-//    match propositions with
-//        List.fold (fun item acc -> match item with | Some X ->  )
-//
+
+let mergeAllPropositionsToDiagram toBeMerged =
+    let diagrams = List.map(fun x -> singlePropositionToVenn x) toBeMerged
+    let thereIsNone = List.exists(fun x -> match x with Some Y -> false | None -> true) diagrams
+    if thereIsNone then None else 
+        let diagramsExtrapolated = List.map(fun x -> match x with |Some Y -> Y) diagrams
+        mergeAll diagramsExtrapolated
+        
+
 
 
